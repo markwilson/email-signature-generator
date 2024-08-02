@@ -10,6 +10,7 @@ const nextConfig = {
   },
 
   output: "export",
+  basePath: "/email-signature-generator",
 };
 
 export default nextConfig;
