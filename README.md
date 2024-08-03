@@ -11,7 +11,7 @@ Use an HTML template to generate email signatures based on user information.
 
 ## Deploying to GitHub Pages
 
-By default, this repository deploys to `https://<your username/organisation>/email-signature-generator`.
+By default, this repository deploys to `https://<your username or organisation>/email-signature-generator`.
 
 _NOTE: Make sure you have GitHub Pages enabled for your repository, and configured to use GitHub Actions for deploying._
 
