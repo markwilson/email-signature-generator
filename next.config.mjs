@@ -12,6 +12,8 @@ const nextConfig = {
   },
 
   output: "export",
+
+  // change this if you are deploying to a different path
   basePath: "/email-signature-generator",
 };
 
