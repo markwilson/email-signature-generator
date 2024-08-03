@@ -1,0 +1,8 @@
+domain: example.com
+fields:
+  - name: name
+  - name: pronouns
+  - name: jobTitle
+  - name: emailAddress
+    placeholder: Email (e.g. first.last@{{domain}})
+    type: email

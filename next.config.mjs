@@ -1,3 +1,5 @@
+import withYaml from "next-plugin-yaml";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   webpack: (config) => {
@@ -13,4 +15,4 @@ const nextConfig = {
   basePath: "/email-signature-generator",
 };
 
-export default nextConfig;
+export default withYaml(nextConfig);

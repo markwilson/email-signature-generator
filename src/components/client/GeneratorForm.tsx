@@ -1,31 +1,33 @@
 "use client";
 
 import emailSignatureGenerator from "@/lib/emailSignatureGenerator";
-import { useCallback, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useMemo, useState } from "react";
 import Input from "./Input";
-import { SignatureData, SignatureDataSchema } from "@/lib/types";
-
-// TODO: move this to configuration
-const DOMAIN = "example.com";
+import { SignatureConfig } from "@/signature.config.yaml";
+import mustache from "mustache";
 
 const COPIED_MESSAGE_TIMEOUT = 3000;
 
-const GeneratorForm = () => {
+type Data = { [key: string]: string | undefined };
+
+const GeneratorForm: FC<{ config: SignatureConfig }> = ({ config }) => {
   const [html, setHtml] = useState<string>();
   const [copied, setCopied] = useState(false);
 
-  const [data, setData] = useState<SignatureData>(
-    SignatureDataSchema.parse({})
+  const defaultData = useMemo(
+    () => Object.fromEntries(config.fields.map(({ name }) => [name, ""])),
+    [config]
   );
+
+  const [data, setData] = useState<Data>(defaultData);
   const setField = useCallback(
-    (fieldName: keyof SignatureData, value: string) =>
+    (fieldName: keyof Data, value: string) =>
       setData((data) => ({ ...data, [fieldName]: value })),
     [setData]
   );
 
   useEffect(() => {
-    const newHtml = emailSignatureGenerator(data);
-    setHtml(newHtml);
+    setHtml(emailSignatureGenerator<Data>(data));
   }, [data, setHtml]);
 
   const copySignature = useCallback(() => {
@@ -58,46 +60,24 @@ const GeneratorForm = () => {
         <div className="font-semibold text-3xl">Email signature generator</div>
 
         <div className="space-y-2 py-2">
-          <div>
-            <Input
-              type="text"
-              name="name"
-              placeholder="Name"
-              disabled={copied}
-              value={data.name}
-              onChange={(e) => setField("name", e.currentTarget.value)}
-            />
-          </div>
-          <div>
-            <Input
-              type="text"
-              name="pronouns"
-              placeholder="Pronouns"
-              disabled={copied}
-              value={data.pronouns}
-              onChange={(e) => setField("pronouns", e.currentTarget.value)}
-            />
-          </div>
-          <div>
-            <Input
-              type="text"
-              name="jobTitle"
-              placeholder="Job title"
-              disabled={copied}
-              value={data.jobTitle}
-              onChange={(e) => setField("jobTitle", e.currentTarget.value)}
-            />
-          </div>
-          <div>
-            <Input
-              type="email"
-              name="emailAddress"
-              placeholder={`Email (e.g. first.last@${DOMAIN})`}
-              disabled={copied}
-              value={data.emailAddress}
-              onChange={(e) => setField("emailAddress", e.currentTarget.value)}
-            />
-          </div>
+          {config.fields.map(({ name, type = "text", placeholder }) => (
+            <div key={name}>
+              <Input
+                type={type}
+                name={name}
+                placeholder={
+                  placeholder
+                    ? mustache.render(placeholder, { domain: config.domain })
+                    : name
+                        .replace(/[A-Z]/, " $&")
+                        .replace(/^[a-z]/, (value) => value.toUpperCase())
+                }
+                disabled={copied}
+                value={data[name] ?? ""}
+                onChange={(e) => setField(name, e.currentTarget.value)}
+              />
+            </div>
+          ))}
 
           <div>
             <button
