@@ -3,7 +3,7 @@
 import emailSignatureGenerator from "@/lib/emailSignatureGenerator";
 import { useCallback, useEffect, useState } from "react";
 import Input from "./Input";
-import { SignatureData } from "@/lib/types";
+import { SignatureData, SignatureDataSchema } from "@/lib/types";
 
 // TODO: move this to configuration
 const DOMAIN = "example.com";
@@ -14,12 +14,9 @@ const GeneratorForm = () => {
   const [html, setHtml] = useState<string>();
   const [copied, setCopied] = useState(false);
 
-  const [data, setData] = useState<SignatureData>({
-    name: "",
-    pronouns: "",
-    emailAddress: "",
-    jobTitle: "",
-  });
+  const [data, setData] = useState<SignatureData>(
+    SignatureDataSchema.parse({})
+  );
   const setField = useCallback(
     (fieldName: keyof SignatureData, value: string) =>
       setData((data) => ({ ...data, [fieldName]: value })),
@@ -39,6 +36,7 @@ const GeneratorForm = () => {
     navigator.clipboard.write([
       new ClipboardItem({
         "text/html": new Blob([html], { type: "text/html" }),
+        "text/plain": new Blob([html], { type: "text/plain" }),
       }),
     ]);
 
