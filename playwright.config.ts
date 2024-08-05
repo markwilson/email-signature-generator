@@ -14,14 +14,13 @@ export default defineConfig({
     trace: "on-first-retry",
   },
 
-  // timeout: 5 * 1000,
-
   webServer: {
     command: "yarn start",
     url: "http://localhost:3000/email-signature-generator",
     reuseExistingServer: !process.env.CI,
     stdout: "pipe",
     stderr: "pipe",
+    timeout: 10 * 1000,
   },
 
   projects: [

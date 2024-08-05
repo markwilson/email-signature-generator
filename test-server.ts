@@ -22,6 +22,8 @@ http
       res.writeHead(200, { "Content-Type": mime.getType(filePath)! });
       res.end(data);
     } catch (error) {
+      console.error(error);
+
       res.writeHead(404);
       res.end(JSON.stringify(error));
     }
