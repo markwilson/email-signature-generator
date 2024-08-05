@@ -1,9 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test("test", async ({ page, context }) => {
-  // provide access to the clipboard to ensure the generator writes to it correctly
-  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
-
+test("full flow", async ({ page, browserName }) => {
   // go to the generator
   await page.goto("http://localhost:3000/email-signature-generator");
 
@@ -21,16 +18,22 @@ test("test", async ({ page, context }) => {
   await expect(button).toBeVisible();
   await expect(button).toBeDisabled();
 
-  // get the contents of the clipboard
-  const clipboardValue = await (
-    await page.evaluateHandle(() => navigator.clipboard.readText())
-  ).jsonValue();
+  // playwright doesn't currently support clipboard access and this fails in webkit
+  if (browserName !== "webkit") {
+    // get the contents of the clipboard
+    const clipboardValue = await (
+      await page.evaluateHandle(() => navigator.clipboard.readText())
+    ).jsonValue();
 
-  // check the clipboard contains all of the form values
-  expect(clipboardValue).toContain("Joe Bloggs");
-  expect(clipboardValue).toContain("he/him/his");
-  expect(clipboardValue).toContain("Head Tester");
-  expect(clipboardValue).toContain("joe.bloggs@example.com");
+    // check the clipboard contains all of the form values
+    expect(clipboardValue).toContain("Joe Bloggs");
+    expect(clipboardValue).toContain("he/him/his");
+    expect(clipboardValue).toContain("Head Tester");
+    expect(clipboardValue).toContain("joe.bloggs@example.com");
+  }
+
+  // wait for the button to reset
+  page.waitForTimeout(3000);
 
   // check the button reverts back to being enabled
   button = page.getByText("Copy signature");
